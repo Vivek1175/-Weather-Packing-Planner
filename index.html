@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atmosphere — Interactive Weather & Packing Planner</title>
+  <meta name="description" content="Dynamic weather forecasts, intelligent rule-based packing suggestions, interactive voice assistant, ambient rain sounds, and custom dynamic CSS theming." />
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-sunny">
+  <!-- Ambient Animated Weather Background Effect -->
+  <div class="weather-bg-overlay" id="weatherBgOverlay">
+    <div class="sun-rays"></div>
+    <div class="rain-particles" id="rainParticles"></div>
+    <div class="snow-particles" id="snowParticles"></div>
+    <div class="cloud-layer" id="cloudLayer"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-cloud-sun-rain"></i>
+        </div>
+        <div class="brand-text">
+          <h1>Atmosphere</h1>
+          <p>Weather & Smart Packing Planner</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Voice Assistant Button -->
+        <button id="voiceBriefBtn" class="btn btn-glass" title="Listen to Weather & Packing Briefing">
+          <i class="fa-solid fa-volume-high"></i>
+          <span class="btn-text">Voice Briefing</span>
+        </button>
+
+        <!-- Rain Sound FX Toggle -->
+        <button id="rainAudioBtn" class="btn btn-glass" title="Toggle Ambient Rain Sound">
+          <i class="fa-solid fa-cloud-showers-heavy"></i>
+          <span class="btn-text">Rain Audio</span>
+        </button>
+
+        <!-- Unit Switcher -->
+        <div class="unit-toggle" id="unitToggle">
+          <button class="unit-btn active" data-unit="metric">°C</button>
+          <button class="unit-btn" data-unit="imperial">°F</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Search Section -->
+    <section class="search-section">
+      <form id="searchForm" class="search-form" autocomplete="off">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="search-input" 
+            placeholder="Search city (e.g. London, New York, Tokyo, Paris)..." 
+            aria-label="Search city"
+            required
+          />
+          <button type="button" id="clearSearchBtn" class="clear-btn" aria-label="Clear input" style="display: none;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <button type="submit" id="searchSubmitBtn" class="btn btn-primary">
+          <span>Search</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <button type="button" id="geoBtn" class="btn btn-secondary" title="Use current location">
+          <i class="fa-solid fa-location-crosshairs"></i>
+          <span class="geo-text">My Location</span>
+        </button>
+      </form>
+
+      <!-- History Chips -->
+      <div class="history-container">
+        <span class="history-label"><i class="fa-solid fa-clock-rotate-left"></i> Recent:</span>
+        <div class="history-chips" id="historyChips">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- Error Notification Toast -->
+      <div id="errorToast" class="error-toast" style="display: none;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="errorMessage">City not found. Please try another search.</span>
+        <button class="toast-close" id="closeErrorBtn">&times;</button>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Grid -->
+    <main class="dashboard-grid" id="dashboardGrid">
+      
+      <!-- Current Weather Hero Card -->
+      <section class="card current-weather-card" id="currentWeatherCard">
+        <div class="card-header">
+          <div>
+            <h2 id="cityName" class="city-name">London</h2>
+            <p id="currentDate" class="date-text">Saturday, July 18</p>
+          </div>
+          <span id="conditionBadge" class="condition-badge">Sunny</span>
+        </div>
+
+        <div class="hero-weather-body">
+          <div class="temp-display-group">
+            <div class="weather-main-icon" id="weatherMainIcon">
+              <i class="fa-solid fa-sun"></i>
+            </div>
+            <div class="temp-wrapper">
+              <span id="mainTemp" class="main-temp">24</span>
+              <span class="temp-unit" id="mainTempUnit">°C</span>
+            </div>
+          </div>
+          <div class="hero-subtext">
+            <p id="conditionDesc">Clear Sky & Warm Sunshine</p>
+            <p class="feels-like">Feels like <span id="feelsLikeTemp">26</span><span class="unit-small">°C</span></p>
+          </div>
+        </div>
+
+        <!-- Weather Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-icon"><i class="fa-solid fa-droplet"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Humidity</span>
+              <span id="humidityVal" class="stat-val">55%</span>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-icon"><i class="fa-solid fa-wind"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Wind Speed</span>
+              <span id="windVal" class="stat-val">12 km/h</span>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Pressure</span>
+              <span id="pressureVal" class="stat-val">1014 hPa</span>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-icon"><i class="fa-solid fa-sun-plant-wilt"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">UV Index</span>
+              <span id="uvVal" class="stat-val">6 (Moderate)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Packing Planner Card -->
+      <section class="card packing-card" id="packingCard">
+        <div class="card-header flex-between">
+          <div>
+            <h2><i class="fa-solid fa-suitcase"></i> Smart Packing List</h2>
+            <p class="sub-heading" id="packingSummaryText">Rule-based recommendations based on forecast</p>
+          </div>
+          <button id="resetPackingBtn" class="btn-icon" title="Reset Checklist">
+            <i class="fa-solid fa-arrow-rotate-right"></i>
+          </button>
+        </div>
+
+        <!-- Packing Progress Bar -->
+        <div class="packing-progress-wrapper">
+          <div class="progress-info">
+            <span>Packed Status</span>
+            <span id="packingProgressCount">0 / 0 items (0%)</span>
+          </div>
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Rain Alert Banner inside Packing Card if Raining -->
+        <div id="rainAlertBanner" class="rain-alert-banner" style="display: none;">
+          <i class="fa-solid fa-cloud-showers-heavy"></i>
+          <div class="rain-alert-content">
+            <strong>Rain Warning!</strong>
+            <span>High probability of precipitation today. Carry an umbrella & waterproof gear.</span>
+          </div>
+          <button id="speakRainAlertBtn" class="btn-small">
+            <i class="fa-solid fa-volume-high"></i> Speak
+          </button>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-container" id="checklistContainer">
+          <!-- Populated by JavaScript Rules Engine -->
+        </div>
+
+        <!-- Add Custom Packing Item -->
+        <form id="customItemForm" class="custom-item-form">
+          <input type="text" id="customItemInput" placeholder="Add custom item (e.g. Passport, Camera)..." required />
+          <button type="submit" class="btn btn-secondary btn-sm">
+            <i class="fa-solid fa-plus"></i> Add
+          </button>
+        </form>
+      </section>
+
+    </main>
+
+    <!-- Extended Forecast Section -->
+    <section class="forecast-section">
+      <!-- Hourly Strip -->
+      <div class="forecast-block">
+        <h3 class="section-title"><i class="fa-solid fa-clock"></i> 24-Hour Forecast</h3>
+        <div class="hourly-strip" id="hourlyStrip">
+          <!-- Hourly cards generated via JS -->
+        </div>
+      </div>
+
+      <!-- 5-Day / 3-Day Daily Cards -->
+      <div class="forecast-block">
+        <h3 class="section-title"><i class="fa-solid fa-calendar-days"></i> Extended Forecast</h3>
+        <div class="daily-grid" id="dailyGrid">
+          <!-- Daily cards generated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Atmosphere Weather & Smart Packing Engine &bull; Built with Vanilla JS & Open-Meteo API</p>
+    </footer>
+  </div>
+
+  <!-- Loading Overlay Spinner -->
+  <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="spinner-container">
+      <div class="weather-spinner"></div>
+      <p id="loadingText">Fetching weather data...</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
